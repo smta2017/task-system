@@ -19,8 +19,14 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('Oauth_token')->nullable();
+
+            $table->bigInteger('organization_id')->unsigned();
+            $table->foreign('organization_id')->references('id')->on('organizations')->onDelete('cascade')->onUpdate('cascade');
+
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
