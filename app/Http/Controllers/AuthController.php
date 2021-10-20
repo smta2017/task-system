@@ -14,6 +14,11 @@ class AuthController extends Controller
     //
     use ApiDesignTrait;
 
+    public function constractor()
+    {
+        $this->middleware('auth:api')->except(['login', 'register']);
+    }
+
     public function register(Request $request)
     {
 
@@ -96,138 +101,6 @@ class AuthController extends Controller
         return $this->ApiResponse(200, 'Logged out');
     }
 
-
-
-
-    public function updatePassword(Request $request)
-    {
-        // TODO: Implement updatePassword() method.
-
-        $validation = Validator::make($request->all(), [
-            'old_password' => ['required', new MatchOldPassword],
-            'new_password' => 'required|min:6'
-        ]);
-        if($validation->fails()) {
-            return $this->apiResponse(400, 'validation error', $validation->errors());
-        }
-
-        $user = User::find(auth('api')->user()->id);
-        $user->update([
-            'password' => Hash::make($request->new_password),
-        ]);
-        return $this->apiResponse(200, 'Password updated successfully');
-    }
-
-
-    public function allUsers()
-    {
-        // TODO: Implement allVendors() method.
-        $users = User::all();
-        return $this->ApiResponse(200, 'All Users', null, $users);
-    }
-
-
-    public function userDetails(Request $request)
-    {
-        // TODO: Implement vendorDetails() method.
-        $user = auth()->user();
-        $user = $user::first();
-//        dd($user);
-        if($user) return $this->ApiResponse(200, 'User details', null, $user);
-        return $this->ApiResponse(200, 'Please Login First');
-    }
-
-
-    public function userDetailsById(Request $request)
-    {
-        // TODO: Implement vendorDetails() method.
-        $validator = Validator::make($request->all(), [
-            'user_id' => 'required|exists:users,id',
-        ]);
-        if ($validator->fails()) {
-            return $this->ApiResponse(400, 'Validation Errors', $validator->errors());
-        }
-        $user = User::findOrFail($request->user_id);
-        return $this->ApiResponse(200, 'Requested User Details', $user);
-    }
-
-    public function UserUpdateById(Request $request)
-    {
-        // TODO: Implement vendorDetails() method.
-//        dd($request);
-        $validator = Validator::make($request->all(), [
-            'user_id'             => 'required|exists:users,id',
-            'name'                  => 'required',
-            'email'                 => 'required|email|unique:users,email,'.$request->user_id,
-            'password'              => 'required|min:6',
-            'organization_id'       => 'required|exists:organizations,id',
-        ]);
-        if ($validator->fails()) {
-            return $this->ApiResponse(400, 'Validation Errors', $validator->errors());
-        }
-        $user = User::findOrFail($request->user_id);
-        $user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'organization_id' => $request->organization_id,
-        ]);
-
-        return $this->ApiResponse(200, 'User Updated Successfully', $user);
-    }
-
-
-    public function updateUser(Request $request)
-    {
-        // TODO: Implement updateVendor() method.
-
-        $user = auth()->user();
-        if($user) {
-            $validator = Validator::make($request->all(), [
-                'name' => 'required',
-                'email' => 'required|email|unique:users,email,'.$user->id,
-                'password' => 'required|min:6',
-                'organization_id' => 'required|exists:organizations,id',
-            ]);
-            if ($validator->fails()) {
-                return $this->ApiResponse(400, 'Validation Errors', $validator->errors());
-            }
-            $user->update([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'organization_id' => $request->organization_id,
-            ]);
-            return $this->apiResponse(200, 'Vendor updated successfully', $user);
-        }
-
-        return $this->ApiResponse(200, 'Please Login First');
-    }
-
-
-
-    public function softDeleteUser(Request $request)
-    {
-        // TODO: Implement softDeleteVendor() method.
-        $user = User::find($request->user_id);
-        if (is_null($user)) {
-            return $this->ApiResponse(400, 'No User Found');
-        }
-        $user->delete();
-        return $this->apiResponse(200,'User deleted successfully');
-    }
-
-
-    public function restoreUser(Request $request)
-    {
-        // TODO: Implement restoreVendor() method.
-        $user = User::withTrashed()->find($request->user_id);
-        if (!is_null($user->deleted_at)) {
-            $user->restore();
-            return $this->ApiResponse(200,'User restored successfully');
-        }
-        return $this->ApiResponse(200,'User already restored');
-    }
 
 
 
