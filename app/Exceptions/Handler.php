@@ -3,13 +3,18 @@
 namespace App\Exceptions;
 
 use App\Http\Traits\ApiDesignTrait;
-use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Routing\Route;
 use Illuminate\Validation\ValidationException;
+use modules\Vendors\Requests\LoginRequest;
+use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
+use function GuzzleHttp\Promise\inspect_all;
 
 class Handler extends ExceptionHandler
 {
@@ -42,7 +47,8 @@ class Handler extends ExceptionHandler
     public function register()
     {
         $this->reportable(function (Throwable $e) {
-            //
+
+
         });
     }
 
@@ -61,5 +67,4 @@ class Handler extends ExceptionHandler
             return $this->ApiResponse(400, "Errors", $e->getMessage());
         }
     }
-
 }
