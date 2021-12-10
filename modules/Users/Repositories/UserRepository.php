@@ -47,6 +47,14 @@ class UserRepository extends BaseRepository implements UserInterface
     public function login($request)
     {
         // TODO: Implement login() method.
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|exists:users,email',
+            'password' =>  'required',
+        ]);
+        if($validator->fails()) {
+            return $this->ApiResponse(400, 'Validation Errors', $validator->errors());
+        }
+
         $credentials = request(['email', 'password']);
         if(! $token = auth('api')->attempt($credentials)){
             return $this->ApiResponse(422, 'unauthorized');
@@ -184,6 +192,12 @@ class UserRepository extends BaseRepository implements UserInterface
     public function softDeleteUser($request)
     {
         // TODO: Implement softDeleteUser() method.
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|exists:users,id',
+        ]);
+        if ($validator->fails()) {
+            return $this->ApiResponse(400, 'Validation Errors', $validator->errors());
+        }
         $user = User::find($request->user_id);
 //        dd($user);
         if (is_null($user)) {
@@ -196,6 +210,12 @@ class UserRepository extends BaseRepository implements UserInterface
     public function restoreUser($request)
     {
         // TODO: Implement restoreUser() method.
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|exists:users,id',
+        ]);
+        if ($validator->fails()) {
+            return $this->ApiResponse(400, 'Validation Errors', $validator->errors());
+        }
         $user = User::withTrashed()->find($request->user_id);
         if (!is_null($user->deleted_at)) {
             $user->restore();
